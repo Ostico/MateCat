@@ -39,13 +39,18 @@ class SegmentMetadataDao extends AbstractDao
      */
     public function getBySegmentIds(array $ids, string $key, int $ttl = 86400): array
     {
+        if (empty($ids)) {
+            return [];
+        }
+
         $placeholders = implode(',', array_fill(0, count($ids), '?'));
         $stmt = $this->database->getConnection()->prepare("SELECT * FROM segment_metadata WHERE id_segment IN ($placeholders) and meta_key = ? ");
 
         return $this->setCacheTTL($ttl)->_fetchObjectMap(
             $stmt,
             SegmentMetadataStruct::class,
-            [...array_values($ids), $key]
+            [...array_values($ids), $key],
+            self::_keymap_get_by_segment_ids . $key
         );
     }
 

@@ -181,6 +181,25 @@ class ContextUrlControllerTest extends AbstractTest
     }
 
 
+    #[Test]
+    public function setForSegment_returns_429_when_rate_limited(): void
+    {
+        $rateLimitedResponse = $this->createStub(Response::class);
+        $rateLimitedResponse->method('code')->willReturn(429);
+
+        $rateLimiter = $this->createStub(RateLimiterService::class);
+        $rateLimiter->method('checkAndIncrement')->willReturn($rateLimitedResponse);
+        $this->reflector->getProperty('rateLimiterService')->setValue($this->controller, $rateLimiter);
+
+        $this->setRequestBody('{"id_segment": 100, "context_url": "https://example.com/seg"}');
+
+        $responseMock = $this->injectResponseMock();
+        $responseMock->expects(self::never())->method('json');
+
+        $this->controller->setForSegment();
+    }
+
+
     // ── Authorization ────────────────────────────────────────────────────
 
     #[Test]

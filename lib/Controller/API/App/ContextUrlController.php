@@ -113,6 +113,25 @@ class ContextUrlController extends KleinController
     }
 
     /**
+     * @return array<string, mixed>
+     *
+     * @throws InvalidArgumentException
+     * @throws JSONValidatorException
+     * @throws JsonValidatorGenericException
+     * @throws \Swaggest\JsonSchema\Exception
+     * @throws InvalidValue
+     * @throws Exception
+     */
+    private function getValidatedBody(): array
+    {
+        $body = $this->request->body();
+        if ($body === null) {
+            throw new InvalidArgumentException('Missing request body', 400);
+        }
+        return $this->validateJSON($body);
+    }
+
+    /**
      * @throws NotFoundException
      */
     private function getValidatedProject(): ProjectStruct
@@ -137,13 +156,7 @@ class ContextUrlController extends KleinController
         }
 
         $project = $this->getValidatedProject();
-
-        $body = $this->request->body();
-        if ($body === null) {
-            throw new InvalidArgumentException('Missing request body', 400);
-        }
-
-        $array = $this->validateJSON($body);
+        $array = $this->getValidatedBody();
         $contextUrl = $array['context_url'];
 
         $this->projectsMetadataDao->set(
@@ -173,13 +186,7 @@ class ContextUrlController extends KleinController
         }
 
         $project = $this->getValidatedProject();
-
-        $body = $this->request->body();
-        if ($body === null) {
-            throw new InvalidArgumentException('Missing request body', 400);
-        }
-
-        $array = $this->validateJSON($body);
+        $array = $this->getValidatedBody();
         $idFile = $array['id_file'] ?? null;
         $contextUrl = $array['context_url'];
 
@@ -226,13 +233,7 @@ class ContextUrlController extends KleinController
         }
 
         $project = $this->getValidatedProject();
-
-        $body = $this->request->body();
-        if ($body === null) {
-            throw new InvalidArgumentException('Missing request body', 400);
-        }
-
-        $array = $this->validateJSON($body);
+        $array = $this->getValidatedBody();
         $idSegment = $array['id_segment'] ?? null;
         $contextUrl = $array['context_url'];
 
